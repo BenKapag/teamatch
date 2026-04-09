@@ -1,6 +1,6 @@
 //Builds the Express application itself
 const express = require("express");
-const healthRouter = require("./routes/health");
+const healthRouter = require("./modules/health/health.routes");
 
 const app = express();
 
