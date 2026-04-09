@@ -1,7 +1,11 @@
 //Starts the server and tells it which port to listen on
+
+// Load environment variables from .env
+require("dotenv").config();
+
 const app = require("./app");
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 /**
  * Start the HTTP server.
