@@ -1,8 +1,12 @@
 //Builds the Express application itself
-const express = require("express");
+const express = require("express"); //store the express library in variable
 const healthRouter = require("./modules/health/health.routes");
+const requestLogger = require("./middleware/requestLogger");
 
 const app = express();
+
+// Logs every incoming request. 
+app.use(requestLogger)
 
 /**
  * Built-in middleware that parses incoming JSON request bodies.
@@ -10,9 +14,7 @@ const app = express();
  */
 app.use(express.json());
 
-/**
- * Register application routes.
- */
+// Register application routes.
 app.use(healthRouter);
 
 module.exports = app;
