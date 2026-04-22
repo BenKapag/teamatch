@@ -1,36 +1,26 @@
-/**
- * In-memory storage for users.
- *
- * This acts as a temporary data store while the application is running.
- * In later stages, this will be replaced by a repository layer backed by PostgreSQL.
- */
-const users = [];
-
-let nextUserId = 1;
+const userRepository = require("./user.repository");
 
 /**
- * Mock password hashing function.
- *
- * Important:
- * This is NOT secure and exists only for development purposes.
- * In a real system, we would use a library like bcrypt or argon2.
+ * Temporary password hashing for development.
+ * Replace with bcrypt or argon2 before production use.
  *
  * @param {string} password
- * @returns {string} hashed password
+ * @returns {string}
  */
 function hashPassword(password) {
   return `hashed_${password}`;
 }
 
 /**
- * Converts an internal user object into a public-safe representation.
- *
- * Why this exists:
- * The internal user object contains sensitive data (passwordHash),
- * which must never be exposed in API responses.
+ * Maps an internal user entity to a safe API response.
  *
  * @param {Object} user
- * @returns {Object} public user object
+ * @param {number} user.id
+ * @param {string} user.email
+ * @param {string} user.username
+ * @param {string} user.passwordHash
+ * @param {string} user.createdAt
+ * @returns {{ id: number, email: string, username: string, createdAt: string }}
  */
 function toPublicUser(user) {
   return {
@@ -42,69 +32,54 @@ function toPublicUser(user) {
 }
 
 /**
- * Creates a new user and stores it in memory.
+ * Creates a new user.
  *
  * Business rules:
  * - email must be unique
  * - username must be unique
- * - password is stored only as a hash (never plain text)
- * - createdAt timestamp is generated at creation time
+ * - password is stored only as a hash
  *
- * @param {Object} input
- * @param {string} input.email
- * @param {string} input.username
- * @param {string} input.password
- *
- * @returns {Object} public user object (without passwordHash)
- *
- * @throws {Error} if email or username already exists
+ * @param {{ email: string, username: string, password: string }} input
+ * @returns {{ id: number, email: string, username: string, createdAt: string }}
+ * @throws {Error} If email or username already exists
  */
 function createUser({ email, username, password }) {
-  // Normalize input for consistent uniqueness checks
   const normalizedEmail = email.trim().toLowerCase();
   const normalizedUsername = username.trim().toLowerCase();
 
-  // Check for existing email
-  const existingEmailUser = users.find(
-    (user) => user.email.toLowerCase() === normalizedEmail
-  );
+  const existingEmailUser = userRepository.findByEmail(normalizedEmail);
 
   if (existingEmailUser) {
     throw new Error("email already exists");
   }
 
-  // Check for existing username
-  const existingUsernameUser = users.find(
-    (user) => user.username.toLowerCase() === normalizedUsername
-  );
+  const existingUsernameUser =
+    userRepository.findByUsername(normalizedUsername);
 
   if (existingUsernameUser) {
     throw new Error("username already exists");
   }
 
-  // Build the internal user object
-  const newUser = {
-    id: nextUserId++,
+  const newUserData = {
     email: normalizedEmail,
-    username: username.trim(), // preserve original casing for display
+    username: username.trim(),
     passwordHash: hashPassword(password),
     createdAt: new Date().toISOString(),
   };
 
-  users.push(newUser);
+  const createdUser = userRepository.create(newUserData);
 
-  // Return a safe version of the user (without sensitive fields)
-  return toPublicUser(newUser);
+  return toPublicUser(createdUser);
 }
 
 /**
- * Finds a user by numeric id.
+ * Retrieves a user by ID.
  *
  * @param {number} userId
- * @returns {Object|null} public user object or null if not found
+ * @returns {{ id: number, email: string, username: string, createdAt: string } | null}
  */
 function getUserById(userId) {
-  const user = users.find((user) => user.id === userId);
+  const user = userRepository.findById(userId);
 
   if (!user) {
     return null;
