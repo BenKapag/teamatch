@@ -1,86 +1,97 @@
-/**
- * In-memory storage for users.
- *
- * This repository currently uses a simple array as its data source.
- * Later, this implementation will be replaced by PostgreSQL without
- * requiring major changes in the service layer.
- */
-const users = [];
-
-let nextUserId = 1;
+const { query } = require("../../db/connection");
 
 /**
- * Finds a user by numeric ID.
+ * Maps a PostgreSQL user row to the internal user entity shape
+ * used by the application layer.
  *
- * @param {number} userId - The user ID to search for.
- * @returns {Object|null} The matching internal user object, or null if not found.
+ * @param {Object} row
+ * @returns {Object|null}
  */
-function findById(userId) {
-  const user = users.find((user) => user.id === userId);
+function mapRowToUser(row) {
+  if (!row) {
+    return null;
+  }
 
-  return user || null;
+  return {
+    id: row.id,
+    email: row.email,
+    username: row.username,
+    passwordHash: row.password_hash,
+    createdAt: row.created_at,
+  };
 }
 
 /**
- * Finds a user by normalized email.
+ * Finds a user by ID.
  *
- * Important:
- * The service layer is responsible for normalizing email values before
- * calling the repository, so this function expects a normalized input.
- *
- * @param {string} email - Normalized email address.
- * @returns {Object|null} The matching internal user object, or null if not found.
+ * @param {number} id
+ * @returns {Promise<Object|null>}
  */
-function findByEmail(email) {
-  const user = users.find((user) => user.email === email);
-
-  return user || null;
-}
-
-/**
- * Finds a user by normalized username.
- *
- * Important:
- * The service layer is responsible for normalizing username values before
- * calling the repository, so this function expects a normalized input.
- *
- * @param {string} username - Normalized username value used for uniqueness checks.
- * @returns {Object|null} The matching internal user object, or null if not found.
- */
-function findByUsername(username) {
-  const user = users.find(
-    (user) => user.username.trim().toLowerCase() === username
+async function findById(id) {
+  const result = await query(
+    "SELECT * FROM users WHERE id = $1",
+    [id]
   );
 
-  return user || null;
+  return mapRowToUser(result.rows[0]);
 }
 
 /**
- * Creates a new user in the repository.
+ * Finds a user by email.
  *
- * The repository is responsible only for persistence concerns.
- * It receives a fully prepared internal user payload from the service layer,
- * assigns an ID, stores it, and returns the stored entity.
- *
- * @param {Object} userData - Prepared internal user data.
- * @param {string} userData.email - Normalized email address.
- * @param {string} userData.username - Display username.
- * @param {string} userData.passwordHash - Hashed password.
- * @param {string} userData.createdAt - ISO timestamp of user creation.
- * @returns {Object} The stored internal user object.
+ * @param {string} email
+ * @returns {Promise<Object|null>}
  */
-function create(userData) {
-  const newUser = {
-    id: nextUserId++,
-    email: userData.email,
-    username: userData.username,
-    passwordHash: userData.passwordHash,
-    createdAt: userData.createdAt,
-  };
+async function findByEmail(email) {
+  const result = await query(
+    "SELECT * FROM users WHERE email = $1",
+    [email]
+  );
 
-  users.push(newUser);
+  return mapRowToUser(result.rows[0]);
+}
 
-  return newUser;
+/**
+ * Finds a user by username (case-insensitive).
+ *
+ * @param {string} username
+ * @returns {Promise<Object|null>}
+ */
+async function findByUsername(username) {
+  const result = await query(
+    "SELECT * FROM users WHERE LOWER(username) = $1",
+    [username]
+  );
+
+  return mapRowToUser(result.rows[0]);
+}
+
+/**
+ * Creates a new user.
+ *
+ * @param {Object} userData
+ * @param {string} userData.email
+ * @param {string} userData.username
+ * @param {string} userData.passwordHash
+ * @param {string} userData.createdAt
+ * @returns {Promise<Object>}
+ */
+async function create(userData) {
+  const result = await query(
+    `
+    INSERT INTO users (email, username, password_hash, created_at)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *
+    `,
+    [
+      userData.email,
+      userData.username,
+      userData.passwordHash,
+      userData.createdAt,
+    ]
+  );
+
+  return mapRowToUser(result.rows[0]);
 }
 
 module.exports = {

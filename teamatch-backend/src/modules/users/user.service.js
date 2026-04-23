@@ -40,21 +40,21 @@ function toPublicUser(user) {
  * - password is stored only as a hash
  *
  * @param {{ email: string, username: string, password: string }} input
- * @returns {{ id: number, email: string, username: string, createdAt: string }}
+ * @returns {Promise<{ id: number, email: string, username: string, createdAt: string }>}
  * @throws {Error} If email or username already exists
  */
-function createUser({ email, username, password }) {
+async function createUser({ email, username, password }) {
   const normalizedEmail = email.trim().toLowerCase();
   const normalizedUsername = username.trim().toLowerCase();
 
-  const existingEmailUser = userRepository.findByEmail(normalizedEmail);
+  const existingEmailUser = await userRepository.findByEmail(normalizedEmail);
 
   if (existingEmailUser) {
     throw new Error("email already exists");
   }
 
   const existingUsernameUser =
-    userRepository.findByUsername(normalizedUsername);
+    await userRepository.findByUsername(normalizedUsername);
 
   if (existingUsernameUser) {
     throw new Error("username already exists");
@@ -67,7 +67,7 @@ function createUser({ email, username, password }) {
     createdAt: new Date().toISOString(),
   };
 
-  const createdUser = userRepository.create(newUserData);
+  const createdUser = await userRepository.create(newUserData);
 
   return toPublicUser(createdUser);
 }
@@ -76,10 +76,10 @@ function createUser({ email, username, password }) {
  * Retrieves a user by ID.
  *
  * @param {number} userId
- * @returns {{ id: number, email: string, username: string, createdAt: string } | null}
+ * @returns {Promise<{ id: number, email: string, username: string, createdAt: string } | null>}
  */
-function getUserById(userId) {
-  const user = userRepository.findById(userId);
+async function getUserById(userId) {
+  const user = await userRepository.findById(userId);
 
   if (!user) {
     return null;
