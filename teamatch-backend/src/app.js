@@ -2,7 +2,9 @@
 const express = require("express"); //store the express library in variable
 const healthRouter = require("./modules/health/health.routes");
 const userRouter = require("./modules/users/user.routes");
+const authRouter = require("./modules/auth/auth.routes");
 const requestLogger = require("./middleware/requestLogger");
+
 
 const app = express();
 
@@ -17,6 +19,8 @@ app.use(express.json());
 
 // Register application routes.
 app.use(healthRouter);
-app.use(userRouter);
+app.use("/users", userRouter);
+app.use("/auth", authRouter);
+
 
 module.exports = app;
