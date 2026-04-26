@@ -1,4 +1,5 @@
 const userRepository = require("../users/user.repository");
+const { toPublicUser } = require("../users/user.mapper");
 
 /**
  * Authenticate user with email and password.
@@ -26,12 +27,7 @@ async function loginUser({ email, password }) {
     throw new Error("invalid email or password");
   }
 
-  return {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    createdAt: user.createdAt,
-  };
+  return toPublicUser(user);
 }
 
 module.exports = {

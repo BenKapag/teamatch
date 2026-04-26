@@ -1,4 +1,5 @@
 const userRepository = require("./user.repository");
+const { toPublicUser } = require("./user.mapper");
 
 /**
  * Temporary password hashing for development.
@@ -11,25 +12,6 @@ function hashPassword(password) {
   return `hashed_${password}`;
 }
 
-/**
- * Maps an internal user entity to a safe API response.
- *
- * @param {Object} user
- * @param {number} user.id
- * @param {string} user.email
- * @param {string} user.username
- * @param {string} user.passwordHash
- * @param {string} user.createdAt
- * @returns {{ id: number, email: string, username: string, createdAt: string }}
- */
-function toPublicUser(user) {
-  return {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    createdAt: user.createdAt,
-  };
-}
 
 /**
  * Creates a new user.
