@@ -1,6 +1,42 @@
 const authService = require("./auth.service");
 
 /**
+ * Handle user registration requests.
+ */
+async function registerUser(req, res) {
+  const { email, username, password } = req.body;
+
+  if (!email || !username || !password) {
+    return res.status(400).json({
+      error: "email, username, and password are required",
+    });
+  }
+
+  try {
+    const user = await authService.registerUser({
+      email,
+      username,
+      password,
+    });
+
+    return res.status(201).json(user);
+  } catch (error) {
+    if (
+      error.message === "email already exists" ||
+      error.message === "username already exists"
+    ) {
+      return res.status(409).json({
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      error: "internal server error",
+    });
+  }
+}
+
+/**
  * Handle user login requests.
  *
  * @param {import("express").Request} req
@@ -38,4 +74,5 @@ async function loginUser(req, res) {
 
 module.exports = {
   loginUser,
+  registerUser,
 };
