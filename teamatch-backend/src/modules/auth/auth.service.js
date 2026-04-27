@@ -1,5 +1,6 @@
 const userRepository = require("../users/user.repository");
 const { toPublicUser } = require("../users/user.mapper");
+const { hashPassword, comparePassword } = require("./password.service");
 
 /**
  * Register a new user.
@@ -23,11 +24,13 @@ async function registerUser({ email, username, password }) {
   if (existingUsernameUser) {
     throw new Error("username already exists");
   }
+  // Hash password before storing it
+  const passwordHash = await hashPassword(password);
 
   const newUserData = {
     email: normalizedEmail,
     username: username.trim(),
-    passwordHash: `hashed_${password}`, // temporary — will replace with bcrypt
+    passwordHash,
     createdAt: new Date().toISOString(),
   };
 
@@ -55,8 +58,7 @@ async function loginUser({ email, password }) {
     throw new Error("invalid email or password");
   }
 
-  // Temporary hashing — replace with bcrypt later
-  const passwordMatches = `hashed_${password}` === user.passwordHash;
+  const passwordMatches = await comparePassword(password, user.passwordHash);
 
   if (!passwordMatches) {
     throw new Error("invalid email or password");
