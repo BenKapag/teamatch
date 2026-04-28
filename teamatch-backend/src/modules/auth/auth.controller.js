@@ -53,11 +53,11 @@ async function loginUser(req, res) {
   }
 
   try {
-    const user = await authService.loginUser({ email, password });
+    const result = await authService.loginUser({ email, password });
 
     return res.status(200).json({
       message: "login successful",
-      user,
+      ...result,
     });
   } catch (error) {
     if (error.message === "invalid email or password") {

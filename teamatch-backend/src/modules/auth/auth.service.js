@@ -1,6 +1,7 @@
 const userRepository = require("../users/user.repository");
 const { toPublicUser } = require("../users/user.mapper");
 const { hashPassword, comparePassword } = require("./password.service");
+const { signAccessToken } = require("./token.service");
 
 /**
  * Register a new user.
@@ -63,8 +64,13 @@ async function loginUser({ email, password }) {
   if (!passwordMatches) {
     throw new Error("invalid email or password");
   }
+  const publicUser = toPublicUser(user);
+  const accessToken = signAccessToken(user);
 
-  return toPublicUser(user);
+  return {
+  accessToken,
+  user: publicUser,
+  };
 }
 
 
