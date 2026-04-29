@@ -40,6 +40,16 @@ async function getUserById(req, res) {
   }
 }
 
+/**
+ * Return the currently authenticated user.
+ */
+function getMe(req, res) {
+  return res.status(200).json({
+    user: req.user,
+  });
+}
+
 module.exports = {
   getUserById,
+  getMe,
 };

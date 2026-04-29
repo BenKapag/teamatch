@@ -1,5 +1,6 @@
 const express = require("express");
 const usersController = require("./user.controller");
+const { authMiddleware } = require("../auth/auth.middleware");
 
 const router = express.Router();
 
@@ -9,5 +10,11 @@ const router = express.Router();
  * Returns a single user by id.
  */
 router.get("/users/:id", usersController.getUserById);
+
+/**
+ * GET/users/me
+ * Returns authenticated user identity from the jwt token
+ */
+router.get("/me", authMiddleware, usersController.getMe);
 
 module.exports = router;
