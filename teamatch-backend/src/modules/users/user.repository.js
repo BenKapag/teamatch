@@ -67,30 +67,31 @@ async function findByUsername(username) {
 }
 
 /**
- * Creates a new user.
+ * Create a new user.
  *
- * @param {Object} userData
- * @param {string} userData.email
- * @param {string} userData.username
- * @param {string} userData.passwordHash
- * @param {string} userData.createdAt
- * @returns {Promise<Object>}
+ * @param {{ email: string, username: string, passwordHash: string, createdAt: string }} userData
+ * @param {{ query: Function }} [client] - Optional database client used for transactions.
+ * @returns {Promise<object>} The created user row.
  */
-async function create(userData) {
-  const result = await query(
-    `
+async function create(userData, client) {
+  // Use the transaction client when provided.
+  // Otherwise, fall back to the default query function for normal single-query usage.
+  const db = client || { query };
+
+  const sql = `
     INSERT INTO users (email, username, password_hash, created_at)
     VALUES ($1, $2, $3, $4)
-    RETURNING *
-    `,
-    [
-      userData.email,
-      userData.username,
-      userData.passwordHash,
-      userData.createdAt,
-    ]
-  );
+    RETURNING *;
+  `;
 
+  const values = [
+    userData.email,
+    userData.username,
+    userData.passwordHash,
+    userData.createdAt,
+  ];
+
+  const result = await db.query(sql, values);
   return mapRowToUser(result.rows[0]);
 }
 

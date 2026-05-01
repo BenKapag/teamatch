@@ -1,3 +1,5 @@
+const { pool } = require("../../db/connection");
+const profileRepository = require("../profile/profile.repository");
 const userRepository = require("../users/user.repository");
 const { toPublicUser } = require("../users/user.mapper");
 const { hashPassword, comparePassword } = require("./password.service");
@@ -35,9 +37,36 @@ async function registerUser({ email, username, password }) {
     createdAt: new Date().toISOString(),
   };
 
-  const createdUser = await userRepository.create(newUserData);
+  // Get a dedicated database connection for the transaction
+  const client = await pool.connect();
 
-  return toPublicUser(createdUser);
+  try {
+    // Start transaction
+    await client.query("BEGIN");
+
+    // Create the user inside the transaction
+    const createdUser = await userRepository.create(newUserData, client);
+
+    // Create the associated profile (same transaction)
+    await profileRepository.createProfile(createdUser.id, client);
+
+    // Commit both operations together
+    await client.query("COMMIT");
+
+    // Return safe public data
+    return toPublicUser(createdUser);
+
+  } catch (error) {
+    // Rollback any changes if something failed
+    await client.query("ROLLBACK");
+
+    // Propagate the error to the controller
+    throw error;
+
+  } finally {
+    // Always release the connection back to the pool
+    client.release();
+  }
 }
 
 /**
