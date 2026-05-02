@@ -3,6 +3,7 @@ const express = require("express"); //store the express library in variable
 const healthRouter = require("./modules/health/health.routes");
 const userRouter = require("./modules/users/user.routes");
 const authRouter = require("./modules/auth/auth.routes");
+const profileRouter = require("./modules/profile/profile.routes");
 const requestLogger = require("./middleware/requestLogger");
 
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(healthRouter);
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
+app.use("/profile", profileRouter);
 
 
 module.exports = app;

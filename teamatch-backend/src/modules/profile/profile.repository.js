@@ -22,6 +22,24 @@ async function createProfile(userId, client) {
   return result.rows[0];
 }
 
+/**
+ * Find a user profile by the owning user's ID.
+ *
+ * @param {number} userId - The authenticated user's ID.
+ * @returns {Promise<object|null>} The profile row, or null if no profile exists.
+ */
+async function findByUserId(userId) {
+  const sql = `
+    SELECT *
+    FROM user_profiles
+    WHERE user_id = $1;
+  `;
+
+  const result = await query(sql, [userId]);
+  return result.rows[0] || null;
+}
+
 module.exports = {
   createProfile,
+  findByUserId,
 };
