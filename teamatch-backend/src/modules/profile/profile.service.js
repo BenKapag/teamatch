@@ -17,6 +17,27 @@ async function getCurrentUserProfile(userId) {
   return mapRowToProfile(profile);
 }
 
+/**
+ * Update the authenticated user's profile.
+ *
+ * @param {number} userId - Authenticated user's ID.
+ * @param {object} profileData - Profile fields from request body.
+ * @returns {Promise<object>} Updated API-friendly profile object.
+ */
+async function updateCurrentUserProfile(userId, profileData) {
+  const updatedProfile = await profileRepository.updateByUserId(
+    userId,
+    profileData
+  );
+
+  if (!updatedProfile) {
+    throw new Error("profile not found");
+  }
+
+  return mapRowToProfile(updatedProfile);
+}
+
 module.exports = {
   getCurrentUserProfile,
+  updateCurrentUserProfile,
 };

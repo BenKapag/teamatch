@@ -11,4 +11,11 @@ const {authMiddleware} = require("../auth/auth.middleware");
  */
 router.get("/", authMiddleware, profileController.getCurrentUserProfile);
 
+/**
+ * PATCH /profile
+ *
+ * Partially update the authenticated user's profile.
+ */
+router.patch( "/", authMiddleware, profileController.updateCurrentUserProfile);
+
 module.exports = router;

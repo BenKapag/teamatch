@@ -21,6 +21,51 @@ async function getCurrentUserProfile(req, res) {
   }
 }
 
+/**
+ * Handle PATCH /profile
+ *
+ * Updates the authenticated user's profile.
+ * Accepts partial input — only provided fields will be updated.
+ *
+ * Requires authMiddleware to attach req.user.
+ */
+async function updateCurrentUserProfile(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const {
+      displayName,
+      bio,
+      avatarUrl,
+      region,
+      competitiveLevel,
+      micPreference,
+    } = req.body;
+
+    // Build only provided fields
+    const profileData = {
+      displayName,
+      bio,
+      avatarUrl,
+      region,
+      competitiveLevel,
+      micPreference,
+    };
+
+    const updatedProfile = await profileService.updateCurrentUserProfile(
+      userId,
+      profileData
+    );
+
+    return res.status(200).json(updatedProfile);
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   getCurrentUserProfile,
+  updateCurrentUserProfile,
 };

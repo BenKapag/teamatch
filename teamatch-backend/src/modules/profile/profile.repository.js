@@ -39,7 +39,59 @@ async function findByUserId(userId) {
   return result.rows[0] || null;
 }
 
+/**
+ * Partially update a user's profile.
+ *
+ * This function implements PATCH behavior:
+ * only fields provided in profileData will be updated.
+ *
+ * @param {number} userId - The authenticated user's ID.
+ * @param {object} profileData - Allowed profile fields to update.
+ * @returns {Promise<object|null>} Updated profile row, or null if not found.
+ */
+async function updateByUserId(userId, profileData) {
+  const fieldMap = {
+    displayName: "display_name",
+    bio: "bio",
+    avatarUrl: "avatar_url",
+    region: "region",
+    competitiveLevel: "competitive_level",
+    micPreference: "mic_preference",
+  };
+
+  const updates = [];
+  const values = [];
+  let paramIndex = 1;
+
+  for (const key in profileData) {
+    if (fieldMap[key] && profileData[key] !== undefined) {
+      updates.push(`${fieldMap[key]} = $${paramIndex}`);
+      values.push(profileData[key]);
+      paramIndex++;
+    }
+  }
+
+  if (updates.length === 0) {
+    throw new Error("no valid profile fields provided");
+  }
+
+  updates.push("updated_at = CURRENT_TIMESTAMP");
+
+  values.push(userId);
+
+  const sql = `
+    UPDATE user_profiles
+    SET ${updates.join(", ")}
+    WHERE user_id = $${paramIndex}
+    RETURNING *;
+  `;
+
+  const result = await query(sql, values);
+  return result.rows[0] || null;
+}
+
 module.exports = {
   createProfile,
   findByUserId,
+  updateByUserId,
 };
