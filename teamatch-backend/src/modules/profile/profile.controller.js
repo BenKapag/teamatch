@@ -1,4 +1,6 @@
 const profileService = require("./profile.service");
+const { updateProfileSchema } = require("./profile.validation");
+const { formatZodErrors } = require("../../utils/zodErrorFormatter");
 
 /**
  * Handle request to get the current authenticated user's profile.
@@ -33,32 +35,22 @@ async function updateCurrentUserProfile(req, res) {
   try {
     const userId = req.user.id;
 
-    const {
-      displayName,
-      bio,
-      avatarUrl,
-      region,
-      competitiveLevel,
-      micPreference,
-    } = req.body;
-
-    // Build only provided fields
-    const profileData = {
-      displayName,
-      bio,
-      avatarUrl,
-      region,
-      competitiveLevel,
-      micPreference,
-    };
+    // Validate request body using Zod
+    const validatedData = updateProfileSchema.parse(req.body);
 
     const updatedProfile = await profileService.updateCurrentUserProfile(
       userId,
-      profileData
+      validatedData
     );
 
     return res.status(200).json(updatedProfile);
   } catch (error) {
+    if (error.name === "ZodError") {
+    return res.status(400).json({
+    message: "Invalid request body",
+    errors: formatZodErrors(error),
+  });
+}
     return res.status(400).json({
       message: error.message,
     });

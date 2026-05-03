@@ -1,26 +1,29 @@
 const authService = require("./auth.service");
+const {registerSchema, loginSchema} = require("./auth.validation");
+const { formatZodErrors } = require("../../utils/zodErrorFormatter"); 
+const { ZodError } = require("zod");
 
 /**
  * Handle user registration requests.
  */
 async function registerUser(req, res) {
-  const { email, username, password } = req.body;
-
-  if (!email || !username || !password) {
-    return res.status(400).json({
-      error: "email, username, and password are required",
-    });
-  }
 
   try {
-    const user = await authService.registerUser({
-      email,
-      username,
-      password,
-    });
+    // Validate request body
+    const validatedData = registerSchema.parse(req.body);
+
+    const user = await authService.registerUser(validatedData);
 
     return res.status(201).json(user);
   } catch (error) {
+    //Zod validation errors
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: formatZodErrors(error),
+      });
+    }
+    //Business logic errors
     if (
       error.message === "email already exists" ||
       error.message === "username already exists"
@@ -44,22 +47,23 @@ async function registerUser(req, res) {
  * @returns {Promise<import("express").Response>}
  */
 async function loginUser(req, res) {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      error: "email and password are required",
-    });
-  }
-
   try {
-    const result = await authService.loginUser({ email, password });
+    const validatedData = loginSchema.parse(req.body);
+
+    const result = await authService.loginUser(validatedData);
 
     return res.status(200).json({
       message: "login successful",
       ...result,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: formatZodErrors(error),
+      });
+    }
+
     if (error.message === "invalid email or password") {
       return res.status(401).json({
         error: error.message,
