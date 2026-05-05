@@ -4,7 +4,9 @@ const healthRouter = require("./modules/health/health.routes");
 const userRouter = require("./modules/users/user.routes");
 const authRouter = require("./modules/auth/auth.routes");
 const profileRouter = require("./modules/profile/profile.routes");
+const discoveryRouter = require("./modules/discovery/discovery.routes");
 const requestLogger = require("./middleware/requestLogger");
+
 
 
 const app = express();
@@ -23,6 +25,7 @@ app.use(healthRouter);
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
+app.use("/discover", discoveryRouter);
 
 
 module.exports = app;
