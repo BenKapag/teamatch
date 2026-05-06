@@ -5,6 +5,7 @@ const userRouter = require("./modules/users/user.routes");
 const authRouter = require("./modules/auth/auth.routes");
 const profileRouter = require("./modules/profile/profile.routes");
 const discoveryRouter = require("./modules/discovery/discovery.routes");
+const gamesRouter = require("./modules/games/games.routes");
 const requestLogger = require("./middleware/requestLogger");
 
 
@@ -12,7 +13,7 @@ const requestLogger = require("./middleware/requestLogger");
 const app = express();
 
 // Logs every incoming request. 
-app.use(requestLogger)
+app.use(requestLogger);
 
 /**
  * Built-in middleware that parses incoming JSON request bodies.
@@ -26,6 +27,7 @@ app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/discover", discoveryRouter);
+app.use("/games", gamesRouter);
 
 
 module.exports = app;
