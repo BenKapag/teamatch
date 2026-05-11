@@ -29,7 +29,7 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/discover", discoveryRouter);
 app.use("/games", gamesRouter);
-app.user("/me/games", userGamesRouter)
+app.use("/me/games", userGamesRouter)
 
 
 module.exports = app;
