@@ -20,16 +20,17 @@ async function createUserGame({userId, gameId, rank, isMain}) {
     )
     VALUES ($1, $2, $3, $4)
     RETURNING 
-      id,
-      user_id,
-      game_id,
-      rank,
-      is_main,
-      created_at,
-      updated_at;
+    id,
+    user_id,
+    game_id,
+    rank,
+    is_main,
+    created_at,
+    updated_at
     `;
+    const values = [userId, gameId, rank, isMain];
 
-    const result = await query(sql ,[userId, gameId, rank, isMain]);
+    const result = await query(sql, values);
 
     return result.rows[0];
 }
