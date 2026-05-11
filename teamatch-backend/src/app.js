@@ -6,6 +6,7 @@ const authRouter = require("./modules/auth/auth.routes");
 const profileRouter = require("./modules/profile/profile.routes");
 const discoveryRouter = require("./modules/discovery/discovery.routes");
 const gamesRouter = require("./modules/games/games.routes");
+const userGamesRouter = require("./modules/userGames/userGames.routes");
 const requestLogger = require("./middleware/requestLogger");
 
 
@@ -28,6 +29,7 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/discover", discoveryRouter);
 app.use("/games", gamesRouter);
+app.user("/me/games", userGamesRouter)
 
 
 module.exports = app;

@@ -2,6 +2,16 @@ const gamesRepository = require("../games/games.repository");
 const userGamesRepository = require("./userGames.repository");
 const { mapRowToUserGame } = require("./userGames.mapper");
 
+/**
+ * Add a game from the catalog to the authenticated user's profile.
+ *
+ * - The selected game must exist in the games catalog.
+ * - A user cannot add the same game more than once.
+ *
+ * @param {number} userId - Authenticated user's ID.
+ * @param {Object} userGameData - Validated request body.
+ * @returns {Promise<Object>} Created user-game object formatted for the API.
+ */
 async function addGameToCurrentUser(userId, userGameData) {
   const game = await gamesRepository.findGameById(userGameData.gameId);
 
@@ -11,6 +21,7 @@ async function addGameToCurrentUser(userId, userGameData) {
     throw error;
   }
 
+  //If isMain is not provided, it defaults to false
   const isMain = userGameData.isMain ?? false;
 
   try {
