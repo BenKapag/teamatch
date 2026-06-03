@@ -44,7 +44,25 @@ async function addGameToCurrentUser(req, res) {
     });
   }   
 }
+/**
+ * Finds all the games of a current user by his id
+ */
+async function findAllUserGames(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const userGames = await userGamesService.findAllUserGames(userId);
+    return res.status(200).json({games: userGames})
+  }
+
+  catch(error){
+  return res.status(500).json({
+    message: "Internal server error",
+  });
+  }
+}
 
 module.exports = {
     addGameToCurrentUser,
+    findAllUserGames,
 }

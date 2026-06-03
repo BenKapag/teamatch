@@ -44,6 +44,19 @@ async function addGameToCurrentUser(userId, userGameData) {
   }
 }
 
+/**
+ * Find all games that belong to a specific user.
+ *
+ * @param {number} userId - The authenticated user's database ID.
+ * @returns {Promise<Array>} The list of games connected to the user.
+ */
+async function findAllUserGames(userId) {
+  const userGames = await userGamesRepository.findAllGames(userId);
+
+  return userGames;
+}
+
 module.exports = {
   addGameToCurrentUser,
+  findAllUserGames,
 };
