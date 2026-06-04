@@ -47,12 +47,14 @@ async function addGameToCurrentUser(req, res) {
 /**
  * Finds all the games of a current user by his id
  */
-async function findAllUserGames(req, res) {
+async function getCurrentUserGames(req, res) {
   try {
     const userId = req.user.id;
 
-    const userGames = await userGamesService.findAllUserGames(userId);
-    return res.status(200).json({games: userGames})
+    const userGames = await userGamesService.getCurrentUserGames(userId);
+    return res.status(200).json({
+      games: userGames
+    });
   }
 
   catch(error){
@@ -64,5 +66,5 @@ async function findAllUserGames(req, res) {
 
 module.exports = {
     addGameToCurrentUser,
-    findAllUserGames,
+    getCurrentUserGames,
 }

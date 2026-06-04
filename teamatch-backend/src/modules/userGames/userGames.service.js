@@ -1,6 +1,6 @@
 const gamesRepository = require("../games/games.repository");
 const userGamesRepository = require("./userGames.repository");
-const { mapRowToUserGame } = require("./userGames.mapper");
+const { mapRowToUserGame, mapJoinedRowToUserGame } = require("./userGames.mapper");
 
 /**
  * Add a game from the catalog to the authenticated user's profile.
@@ -48,15 +48,15 @@ async function addGameToCurrentUser(userId, userGameData) {
  * Find all games that belong to a specific user.
  *
  * @param {number} userId - The authenticated user's database ID.
- * @returns {Promise<Array>} The list of games connected to the user.
+ * @returns {Promise<Array>} User games formatted for the API response
  */
-async function findAllUserGames(userId) {
-  const userGames = await userGamesRepository.findAllGames(userId);
+async function getCurrentUserGames(userId) {
+  const rows = await userGamesRepository.findUserGamesByUserId(userId);
 
-  return userGames;
+  return rows.map(mapJoinedRowToUserGame);
 }
 
 module.exports = {
   addGameToCurrentUser,
-  findAllUserGames,
+  getCurrentUserGames,
 };

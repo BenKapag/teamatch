@@ -14,6 +14,6 @@ router.post("/", authMiddleware, userGamesController.addGameToCurrentUser);
  * GET /me/games
  * Returns all the games of a current authenticated user
  */
-router.get("/", authMiddleware, userGamesController.findAllUserGames);
+router.get("/", authMiddleware, userGamesController.getCurrentUserGames);
 
 module.exports = router;

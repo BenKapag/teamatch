@@ -41,13 +41,17 @@ async function createUserGame({userId, gameId, rank, isMain}) {
  * @param {number} userId - The authenticated user's database ID.
  * @returns {Promise<Array>} The list of games connected to the user.
  */
-async function findAllGames(userId) {
+async function findUserGamesByUserId(userId) {
     const sql = `
     SELECT
-    g.id,
-    g.name,
+    ug.id,
+    ug.user_id,
+    ug.game_id,
+    g.name AS game_name,
     ug.rank,
-    ug.is_main AS "isMain"
+    ug.is_main,
+    ug.created_at,
+    ug.updated_at
     FROM user_games ug
     JOIN games g ON ug.game_id = g.id
     WHERE ug.user_id = $1
@@ -62,5 +66,5 @@ async function findAllGames(userId) {
 
 module.exports = {
     createUserGame,
-    findAllGames,
+    findUserGamesByUserId,
 }
