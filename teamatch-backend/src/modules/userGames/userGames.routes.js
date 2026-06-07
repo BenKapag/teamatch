@@ -16,4 +16,9 @@ router.post("/", authMiddleware, userGamesController.addGameToCurrentUser);
  */
 router.get("/", authMiddleware, userGamesController.getCurrentUserGames);
 
+/**
+ * DELETE /me/games/:gameId
+ */
+router.delete("/:gameId", authMiddleware, userGamesController.deleteCurrentUsersGame);
+
 module.exports = router;

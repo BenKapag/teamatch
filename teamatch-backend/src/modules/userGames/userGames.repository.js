@@ -63,8 +63,32 @@ async function findUserGamesByUserId(userId) {
     return result.rows;
 }
 
+/**
+ * Deletes a game from the authenticated user's game list.
+ *
+ * @param {Object} params
+ * @param {number} params.userId - The authenticated user's ID (from req.user.id)
+ * @param {number} params.gameId - The game to remove (from req.params.gameId)
+ * @returns {Object|undefined} The deleted row, or undefined if not found
+ */
+
+async function deleteCurrentUsersGame({userId, gameId}) {
+    const sql = `
+    DELETE
+    FROM user_games
+    WHERE user_id = $1 and game_id = $2
+    RETURNING *
+    `;
+
+    const result = await query(sql, [userId, gameId]);
+    
+    return result.rows[0];
+    
+}
+
 
 module.exports = {
     createUserGame,
     findUserGamesByUserId,
+    deleteCurrentUsersGame,
 }

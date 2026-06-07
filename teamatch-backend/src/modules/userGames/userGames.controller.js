@@ -64,7 +64,45 @@ async function getCurrentUserGames(req, res) {
   }
 }
 
+/**
+ * Handles DELETE /me/games/:gameId
+ * Removes a game from the authenticated user's game list.
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+async function deleteCurrentUsersGame(req, res) {
+  try {
+    const userId = req.user.id;
+    const gameId = Number(req.params.gameId);
+
+    if (!Number.isInteger(gameId) || gameId <= 0) {
+      return res.status(400).json({ message: "gameId must be a positive integer" });
+    }
+
+    const deletedUserGame = await userGamesService.deleteCurrentUsersGame({userId, gameId});
+
+    return res.status(200).json({
+      message: "Game succesfully deleted",
+      game: deletedUserGame
+    });
+  }
+
+  catch(error){
+    if(error.code === "GAME_NOT_FOUND"){
+      return res.status(404).json({
+      message: "Game not found"
+      });
+    }
+    return res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+}
+
 module.exports = {
     addGameToCurrentUser,
     getCurrentUserGames,
+    deleteCurrentUsersGame,
 }

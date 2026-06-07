@@ -56,7 +56,33 @@ async function getCurrentUserGames(userId) {
   return rows.map(mapJoinedRowToUserGame);
 }
 
+/**
+ * Removes a game from the authenticated user's game list.
+ * Throws if the user does not have that game.
+ *
+ * @param {Object} params
+ * @param {number} params.userId - The authenticated user's ID (from req.user.id)
+ * @param {number} params.gameId - The game to remove (from req.params.gameId)
+ * @returns {Object} The deleted user game
+ * @throws {Error} GAME_DOESNT_EXIST - if the user does not have this game
+ */
+async function deleteCurrentUsersGame({ userId, gameId }) {
+  
+  const row = await userGamesRepository.deleteCurrentUsersGame({userId, gameId});
+
+  if (!row){
+
+    const error = new Error("The game doesnt exist");
+    error.code = "GAME_NOT_FOUND"
+    throw error;
+  }
+
+  return mapRowToUserGame(row);
+}
+
+
 module.exports = {
   addGameToCurrentUser,
   getCurrentUserGames,
+  deleteCurrentUsersGame,
 };
