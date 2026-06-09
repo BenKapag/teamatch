@@ -1,5 +1,5 @@
 const userGamesService = require("./userGames.service");
-const { addUserGameSchema } = require("./userGames.validation");
+const userGameSchemas = require("./userGames.validation");
 const { formatZodErrors } = require("../../utils/zodErrorFormatter");
 const { ZodError } = require("zod");
 
@@ -11,7 +11,7 @@ async function addGameToCurrentUser(req, res) {
     const userId = req.user.id;
 
     // Validate request body using Zod
-    const validatedData = addUserGameSchema.parse(req.body);
+    const validatedData = userGameSchemas.addUserGameSchema.parse(req.body);
 
     const userGame = await userGamesService.addGameToCurrentUser(userId, validatedData);
 
@@ -101,8 +101,56 @@ async function deleteCurrentUsersGame(req, res) {
   }
 }
 
+/**
+ * Handles PATCH /me/games/:gameId
+ * Updates rank or isMain for a game in the authenticated user's game list.
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+async function updateCurrentUserGame(req, res) {
+  try{
+    const userId = req.user.id;
+    const gameId = Number(req.params.gameId);
+
+    if (!Number.isInteger(gameId) || gameId <= 0) {
+      return res.status(400).json({ message: "gameId must be a positive integer" });
+    }
+
+    const validatedData = userGameSchemas.updateUserGameSchema.parse(req.body)
+
+    const updatedUserGame = await userGamesService.updateCurrentUserGame({userId, gameId, userGameData: validatedData});
+    
+    return res.status(200).json({
+      message: "The details updated succesfully",
+      updatedUserGame
+    })
+  }
+
+  catch(error){
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: formatZodErrors(error)
+      });
+    }
+
+    if(error.code === "GAME_NOT_FOUND"){
+      return res.status(404).json({
+      message: "Game not found"
+      });
+    }
+
+      return res.status(500).json({
+      message: "Internal server error",
+    }); 
+  }
+}
+
 module.exports = {
     addGameToCurrentUser,
     getCurrentUserGames,
     deleteCurrentUsersGame,
+    updateCurrentUserGame,
 }

@@ -82,8 +82,58 @@ async function deleteCurrentUsersGame({userId, gameId}) {
 
     const result = await query(sql, [userId, gameId]);
     
-    return result.rows[0];
+    return result.rows[0] || null;
+}
+
+/**
+ * Updates a user's game fields
+ * 
+ * @param {Object} userGameData - The fields to update (rank, isMain)
+ * @param {number} userGameData.userId - The authenticated user's ID
+ * @param {number} userGameData.gameId - The game that belongs to the user
+ * @returns {Object|null} The updated row, or null if not found
+ */
+async function updateCurrentUserGame({userId, gameId, userGameData}) {
+    const fieldMap = {
+        rank: "rank",
+        isMain: "is_main"
+    }
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    for (const key in userGameData){
+        if(fieldMap[key] && userGameData[key] !== undefined) {
+            updates.push(`${fieldMap[key]} = $${paramIndex}`);
+            values.push(userGameData[key]);
+            paramIndex++;
+        }
+    }
+
+    if (updates.length === 0){
+        throw new Error("no valid user game fields provided");
+    }
+
+    updates.push('updated_at = CURRENT_TIMESTAMP');
     
+    values.push(userId);
+    const userParamIndex = paramIndex;
+    paramIndex++;
+
+    values.push(gameId);
+    const gameIdParamIndex = paramIndex
+
+    const sql = `
+    UPDATE user_games
+    SET ${updates.join(", ")}
+    WHERE user_id = $${userParamIndex} and game_id = $${gameIdParamIndex}
+    RETURNING *;
+    `
+
+    const result = await query(sql, values);
+    
+    return result.rows[0] || null;
 }
 
 
@@ -91,4 +141,5 @@ module.exports = {
     createUserGame,
     findUserGamesByUserId,
     deleteCurrentUsersGame,
+    updateCurrentUserGame,
 }

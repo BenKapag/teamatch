@@ -87,6 +87,7 @@ async function updateByUserId(userId, profileData) {
   `;
 
   const result = await query(sql, values);
+  
   return result.rows[0] || null;
 }
 

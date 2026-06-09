@@ -15,6 +15,18 @@ const addUserGameSchema = z
   })
   .strict();
 
+const updateUserGameSchema = z
+  .object({
+    rank: z.string().max(100).optional(),
+    isMain: z.boolean().optional(),
+  })
+  .strict()
+  .refine(
+    (data) => data.rank !== undefined || data.isMain !== undefined,
+    { message: "At least one field must be provided" }
+  );
+
 module.exports = {
   addUserGameSchema,
+  updateUserGameSchema
 };

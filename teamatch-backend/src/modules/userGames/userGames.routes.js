@@ -18,7 +18,14 @@ router.get("/", authMiddleware, userGamesController.getCurrentUserGames);
 
 /**
  * DELETE /me/games/:gameId
+ * Deletes a game of a current authenticated user
  */
 router.delete("/:gameId", authMiddleware, userGamesController.deleteCurrentUsersGame);
+
+/**
+ * PATCH /me/games/:gameId
+ * Updates a game of a current authenticated user
+ */
+router.patch("/:gameId", authMiddleware, userGamesController.updateCurrentUserGame);
 
 module.exports = router;
