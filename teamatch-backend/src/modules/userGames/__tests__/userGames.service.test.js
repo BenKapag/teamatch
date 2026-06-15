@@ -1,8 +1,10 @@
 const userGamesService = require("../userGames.service");
 const userGamesRepository = require("../userGames.repository");
+const gamesRepository = require("../../games/games.repository");
 
 // Tell Jest to mock the entire repository module
 jest.mock("../userGames.repository");
+jest.mock("../../games/games.repository");
 
 describe("userGamesService", () => {
 
@@ -112,5 +114,120 @@ describe("userGamesService", () => {
   });
 
  });
+
+ describe("addGameToCurrentUser", () => {
+  it("should return userGame if added successfully", async () => {
+    // Arrange
+    gamesRepository.findGameById.mockResolvedValue({
+      id: 1,
+      name: "Valornt",
+      created_at:"2024-01-01T00:00:00.000Z",
+    });
+
+    userGamesRepository.createUserGame.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      game_id: 1,
+      rank: "Gold",
+      is_main: true,
+      created_at: "2026-06-09 16:08:30.5703",
+      updated_at: "2026-06-09 16:12:45.71312",  
+    });
+
+    // Act
+    const result = await userGamesService.addGameToCurrentUser(1 , {gameId: 1, rank: "Gold", isMain: true});
+
+    // Assert
+    expect(result).toEqual({
+      id: 1,
+      userId: 1,
+      gameId: 1,
+      rank: "Gold",
+      isMain: true,
+      createdAt: "2026-06-09 16:08:30.5703",
+      updatedAt: "2026-06-09 16:12:45.71312", 
+    });
+  });
+
+  it("should throw GAME_NOT_FOUND when the game does not exist in games table", async () => {
+    // Arrange
+    gamesRepository.findGameById.mockResolvedValue(null);
+
+    // Act
+    const error = await userGamesService.addGameToCurrentUser(1 , {
+      gameId: 1,
+      rank: "Gold",
+      isMain: true
+    }).catch((e) => e);
+    
+    // Assert
+    expect(error.code).toBe("GAME_NOT_FOUND");
+  });
+
+  it("should throw USER_GAME_ALREADY_EXISTS error if user already have the game", async () => {
+    // Arrange
+    gamesRepository.findGameById.mockResolvedValue({
+      id: 1,
+      name: "Valornt",
+      created_at:"2024-01-01T00:00:00.000Z",
+    });
+
+    const pgError = new Error("duplicate key");
+    pgError.code = "23505";
+    userGamesRepository.createUserGame.mockRejectedValue(pgError);
+
+    // Act
+    const error = await userGamesService.addGameToCurrentUser(1, {
+    gameId: 1,
+    rank: "Gold",
+    isMain: true
+    }).catch((e) => e);
+
+    // Assert
+    expect(error.code).toBe("USER_GAME_ALREADY_EXISTS");
+  });
+ });
+
+ describe("findUserGamesByUserId", () => {
+  it("should return array with existing user games data in it", async () => {
+    // Arrange
+    userGamesRepository.findUserGamesByUserId.mockResolvedValue([{
+      id: 1,
+      user_id: 1,
+      game_id: 1,
+      game_name: "Valorant",
+      rank: "Gold",
+      is_main: true,
+      created_at: "2026-06-09 16:08:30.5703",
+      updated_at: "2026-06-09 16:08:30.5703",
+    }]);
+
+    // Act
+    const result = await userGamesService.getCurrentUserGames(1);
+
+    // Assert
+    expect(result).toEqual([{
+      id: 1,
+      userId: 1,
+      gameId: 1,
+      gameName: "Valorant",
+      rank: "Gold",
+      isMain: true,
+      createdAt: "2026-06-09 16:08:30.5703",
+      updatedAt: "2026-06-09 16:08:30.5703",
+    }]);
+  });
+
+  it("should return an empty array cause no games under this specific user", async () => {
+    // Arrange
+    userGamesRepository.findUserGamesByUserId.mockResolvedValue([]);
+
+    // Act
+    const result = await userGamesService.getCurrentUserGames(1);
+
+    // Assert
+    expect(result).toEqual([]);
+  });
+ })
 
 });
