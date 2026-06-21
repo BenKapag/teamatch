@@ -17,8 +17,11 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "js-yaml": "^5.0.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.4.2"
   },
   "devDependencies": {
@@ -27,6 +30,6 @@
     "prettier": "^3.8.3"
   },
   "jest": {
-  "testEnvironment": "node"
+    "testEnvironment": "node"
   }
 }

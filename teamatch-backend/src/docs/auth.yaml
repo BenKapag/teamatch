@@ -1,0 +1,64 @@
+tags:
+  - name: Auth
+    description: Registration and login
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  example: ben@gmail.com
+                username:
+                  type: string
+                  example: ben96
+                password:
+                  type: string
+                  example: mypassword123
+      responses:
+        '201':
+          description: User registered successfully
+        '409':
+          description: Email or username already exists
+        '400':
+          description: Invalid request body
+
+  /auth/login:
+    post:
+      summary: Login and receive a JWT token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: ben@gmail.com
+                password:
+                  type: string
+                  example: mypassword123
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+        '401':
+          description: Invalid email or password
+        '400':
+          description: Invalid request body

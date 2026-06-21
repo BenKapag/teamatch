@@ -1,0 +1,20 @@
+tags:
+  - name: Health
+    description: Server health check
+
+paths:
+  /health:
+    get:
+      summary: Check if the server is running
+      tags: [Health]
+      responses:
+        '200':
+          description: Server is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok

@@ -8,6 +8,8 @@ const discoveryRouter = require("./modules/discovery/discovery.routes");
 const gamesRouter = require("./modules/games/games.routes");
 const userGamesRouter = require("./modules/userGames/userGames.routes");
 const requestLogger = require("./middleware/requestLogger");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 
 
@@ -21,6 +23,9 @@ app.use(requestLogger);
  * We add it early because most real APIs work with JSON.
  */
 app.use(express.json());
+
+// Serves Swagger UI at /api-docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Register application routes.
 app.use(healthRouter);

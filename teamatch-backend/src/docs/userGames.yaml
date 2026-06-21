@@ -1,0 +1,132 @@
+tags:
+  - name: User Games
+    description: Manage games on the authenticated user's profile
+
+paths:
+  /me/games:
+    get:
+      summary: Get all games of the authenticated user
+      tags: [User Games]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Returns the user's games
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        userId:
+                          type: integer
+                        gameId:
+                          type: integer
+                        gameName:
+                          type: string
+                          example: Valorant
+                        rank:
+                          type: string
+                          example: Gold
+                        isMain:
+                          type: boolean
+                          example: true
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Add a game to the authenticated user's profile
+      tags: [User Games]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - gameId
+              properties:
+                gameId:
+                  type: integer
+                  example: 1
+                rank:
+                  type: string
+                  example: Gold
+                isMain:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Game added successfully
+        '404':
+          description: Game not found
+        '409':
+          description: Game already added
+        '401':
+          description: Unauthorized
+
+  /me/games/{gameId}:
+    delete:
+      summary: Remove a game from the authenticated user's profile
+      tags: [User Games]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Game removed successfully
+        '404':
+          description: Game not found
+        '400':
+          description: Invalid gameId
+        '401':
+          description: Unauthorized
+
+    patch:
+      summary: Update rank or isMain for a game
+      tags: [User Games]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rank:
+                  type: string
+                  example: Platinum
+                isMain:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Game updated successfully
+        '404':
+          description: Game not found
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized

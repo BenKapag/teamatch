@@ -1,0 +1,31 @@
+tags:
+  - name: Games
+    description: Games catalog
+
+paths:
+  /games:
+    get:
+      summary: Get all available games
+      tags: [Games]
+      responses:
+        '200':
+          description: Returns all games sorted alphabetically
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: Valorant
+                        createdAt:
+                          type: string
+                          example: "2024-01-01T00:00:00.000Z"

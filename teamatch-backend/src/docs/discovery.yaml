@@ -1,0 +1,44 @@
+tags:
+  - name: Discovery
+    description: Find potential teammates
+
+paths:
+  /discover:
+    get:
+      summary: Get discovery candidates for the authenticated user
+      tags: [Discovery]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Returns a list of potential teammates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                        username:
+                          type: string
+                        displayName:
+                          type: string
+                        bio:
+                          type: string
+                        region:
+                          type: string
+                        competitiveLevel:
+                          type: string
+                        micPreference:
+                          type: string
+        '400':
+          description: Profile incomplete
+        '404':
+          description: Profile not found
+        '401':
+          description: Unauthorized
