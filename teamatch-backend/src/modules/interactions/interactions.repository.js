@@ -10,7 +10,8 @@ const { query } = require("../../db/connection");
  * @param {string} params.action - Either 'like' or 'pass'
  * @returns {Promise<Object>} The created interaction row
  */
-async function createInteraction({fromUserId, toUserId, action}) {
+async function createInteraction({fromUserId, toUserId, action}, client) {
+
     const sql = `
     INSERT INTO interactions(
     from_user_id,
@@ -23,7 +24,9 @@ async function createInteraction({fromUserId, toUserId, action}) {
 
     const values = [fromUserId, toUserId, action];
 
-    const result = await query(sql, values);
+    const db = client || { query };  // use client if provided, otherwise default query
+
+    const result = await db.query(sql, values);
 
     return result.rows[0]
 }
@@ -51,8 +54,33 @@ async function findMutualLike(fromUserId, toUserId) {
     return result.rows[0];
 }
 
+/**
+ * Creates a new match between two users.
+ * user1Id must always be the smaller ID — enforced by the service layer.
+ *
+ * @param {number} user1Id - The smaller of the two user IDs
+ * @param {number} user2Id - The larger of the two user IDs
+ * @returns {Promise<Object>} The created match row
+ */
+async function createMatch(user1Id, user2Id, client) {
+  // user1Id is already the smaller one — service sorted it
+  const sql = `
+  INSERT INTO matches (user1_id, user2_id)
+  VALUES ($1, $2)
+  RETURNING *
+  `
+  const values = [user1Id, user2Id];
+
+  const db = client || { query };  // use client if provided, otherwise default query
+
+  const result = await db.query(sql,values);
+
+  return result.rows[0];
+}
+
 
 module.exports = {
 createInteraction,
 findMutualLike,
+createMatch
 };
