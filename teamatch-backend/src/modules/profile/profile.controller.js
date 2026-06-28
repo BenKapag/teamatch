@@ -46,11 +46,11 @@ async function updateCurrentUserProfile(req, res) {
     return res.status(200).json(updatedProfile);
   } catch (error) {
     if (error.name === "ZodError") {
-    return res.status(400).json({
-    message: "Invalid request body",
-    errors: formatZodErrors(error),
-  });
-}
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: formatZodErrors(error),
+      });
+    }
     return res.status(400).json({
       message: error.message,
     });
