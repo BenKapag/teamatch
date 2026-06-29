@@ -56,3 +56,7 @@ async function interactWithUser(fromUserId, toUserId, action) {
         client.release();
     }
 }
+
+module.exports = {
+    interactWithUser,
+}
