@@ -7,6 +7,7 @@ const profileRouter = require("./modules/profile/profile.routes");
 const discoveryRouter = require("./modules/discovery/discovery.routes");
 const gamesRouter = require("./modules/games/games.routes");
 const userGamesRouter = require("./modules/userGames/userGames.routes");
+const interactionRouter = require("./modules/interactions/interactions.routes");
 const requestLogger = require("./middleware/requestLogger");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
@@ -34,7 +35,8 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/discover", discoveryRouter);
 app.use("/games", gamesRouter);
-app.use("/me/games", userGamesRouter)
+app.use("/me/games", userGamesRouter);
+app.use("/discover", interactionRouter);
 
 
 module.exports = app;
